@@ -8,29 +8,39 @@
   $pw = 'password';
   $db = 'newsletter'; 
 
-  $conn = new mysqli($hn, $un, $pw, $db);
-  if ($conn->connect_error) die("Fatal Error");
+  $dbHelper = new DatabaseHelper($hn, $un, $pw, $db); 
 
   if (isset($_POST['name']) && isset($_POST['email']))
   {
-    if ($stmt = $conn->prepare('INSERT INTO subscribers VALUES(?, ?, ?)'))
-    {
-        $id = null; 
-        $name = $_POST['name']; 
-        $email = $_POST['email']; 
-
-        $stmt->bind_param('iss', $id, $name, $email); 
-        $stmt->execute(); 
-        printf("%d Row inserted.\n", $stmt->affected_rows); 
-    } 
-    else 
-    {
-        $error = $conn->errno . ' ' . $conn->error; 
-        echo $error; 
-    }
-    
+    $dbHelper->inserSubscribers($_POST['name'], $_POST['email']); 
   }
   
+  class DatabaseHelper
+  {
+      public $conn;
+      
+      public function __construct($hn, $un, $pw, $db)
+      {
+          $this->conn = new mysqli($hn, $un, $pw, $db);
+          if ($conn->connect_error) die("Fatal Error"); 
+      }
+
+      public function insertSubscribers($name, $email)
+      {
+          if ($stmt = $conn->prepare('INSERT INTO subscribers VALUES(?, ?, ?)'))
+          {
+              $id = null;
+              $stmt->bind_param('iss', $id, $name, $email); 
+              $stmt->execute(); 
+              printf("Your submission was added to the DB"); 
+          }
+          else
+          {
+              $error = $this->conn->errno . ' ' . $conn->error;
+              echo $error; 
+          }
+      }
+  }
 
   class Form 
   {
@@ -39,7 +49,7 @@
       {
           $this->method = $method; 
           $this->action = $action; 
-          $this->js_validation = false; 
+          $this->js_validation = true; 
       }
 
       public function render_form()
@@ -74,5 +84,5 @@ _END;
 
   $new_form = new Form("POST", "treehouseChallenge.php"); 
   echo $new_form->render_form();
-  $conn->close();  
+  $dbHelper->conn->close(); 
 ?>
