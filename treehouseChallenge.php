@@ -68,6 +68,13 @@
                       alert("Please provide an email!")
                       return false; 
                   }
+                  let email = document.forms['newsletterForm'].email.value; 
+                  let atpos = email.indexOf('@');
+                  let dotpos = email.lastIndexOf('.'); 
+                  if (atpos < 1 || (dotpos - atpos < 2) ) {
+                      alert("Please enter a valid email."); 
+                      return false; 
+                  }
                   return true; 
               }
             </script>
