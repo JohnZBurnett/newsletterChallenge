@@ -80,39 +80,13 @@
             </script>
 _END;
           } else {
-             $this->validationScript = "<script> function validate() { return null; } </script>" ;
+             $this->jsValidationScript = "<script> function validate() { return null; } </script>" ;
           }
       }
 
       public function render_form() {
-          if ($this->jsValidation == true) {
-              $validationScript = <<<_END
-              <script>
-              function validate() {
-                  if (document.forms['newsletterForm'].name.value === "") {
-                      alert("Please provide a name!");
-                      return false; 
-                  } 
-                  if (document.forms['newsletterForm'].email.value === "") {
-                      alert("Please provide an email!")
-                      return false; 
-                  }
-                  let email = document.forms['newsletterForm'].email.value; 
-                  let atpos = email.indexOf('@');
-                  let dotpos = email.lastIndexOf('.'); 
-                  if (atpos < 1 || (dotpos - atpos < 2) ) {
-                      alert("Please enter a valid email."); 
-                      return false; 
-                  }
-                  return true; 
-              }
-            </script>
-_END;
-          } else {
-              $validationScript = "<script> function validate() { return null; } </script>" ; 
-          }
           return <<<_END
-            $this->validationScript
+            $this->jsValidationScript
             <form action=$this->action method=$this->method onsubmit="return(validate())" name="newsletterForm">
               Please fill out this form to subscribe to the newsletter:
               Enter Name: <input type="text" name="name">
@@ -123,7 +97,8 @@ _END;
       }
   }
 
-  $new_form = new Form("POST", "treehouseChallenge.php"); 
-  echo $new_form->render_form();
+  $newForm = new Form("POST", "treehouseChallenge.php"); 
+  $newForm->setJsFormValidation(true); 
+  echo $newForm->render_form();
   $dbHelper->conn->close(); 
 ?>
