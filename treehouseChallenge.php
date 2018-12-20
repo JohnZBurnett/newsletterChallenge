@@ -9,70 +9,69 @@
   $db = 'newsletter'; 
 
   $dbHelper = new DatabaseHelper($hn, $un, $pw, $db); 
-
-  if (isset($_POST['name']) && isset($_POST['email']))
-  {
-    $dbHelper->inserSubscribers($_POST['name'], $_POST['email']); 
+  $dbHelper->getAllSubscribers(); 
+  if (isset($_POST['name']) && isset($_POST['email'])) {
+    $dbHelper->insertSubscribers($_POST['name'], $_POST['email']); 
   }
   
-  class DatabaseHelper
-  {
+  class DatabaseHelper {
       public $conn;
       
-      public function __construct($hn, $un, $pw, $db)
-      {
+      public function __construct($hn, $un, $pw, $db) {
           $this->conn = new mysqli($hn, $un, $pw, $db);
-          if ($conn->connect_error) die("Fatal Error"); 
+          if ($this->conn->connect_error) die("Fatal Error"); 
       }
 
-      public function insertSubscribers($name, $email)
-      {
-          if ($stmt = $conn->prepare('INSERT INTO subscribers VALUES(?, ?, ?)'))
-          {
+      public function insertSubscribers($name, $email) {
+          if ($stmt = $this->conn->prepare('INSERT INTO subscribers VALUES(?, ?, ?)')) {
               $id = null;
               $stmt->bind_param('iss', $id, $name, $email); 
               $stmt->execute(); 
-              printf("Your submission was added to the DB"); 
           }
-          else
-          {
+          else {
               $error = $this->conn->errno . ' ' . $conn->error;
               echo $error; 
           }
       }
+
+      public function getAllSubscribers() {
+          $query = 'SELECT * FROM subscribers'; 
+          $result = $this->conn->query($query); 
+          $rows = $result->num_rows; 
+          for ($j = 0; $j < $rows; ++$j) {
+              $row = $result->fetch_array(MYSQLI_ASSOC); 
+              echo 'Name ' . htmlspecialchars($row['name']) . '<br>';
+          }
+          $result->close(); 
+      }
   }
 
-  class Form 
-  {
+  class Form {
       public $method, $action, $js_validation; 
-      public function __construct($method, $action) 
-      {
+
+      public function __construct($method, $action) {
           $this->method = $method; 
           $this->action = $action; 
-          $this->js_validation = true; 
+          $this->js_validation = false; 
       }
 
-      public function render_form()
-      {
-          if ($this->js_validation == true)
-          {
-              echo "Did this hit?"; 
+      public function render_form() {
+          if ($this->js_validation == true) {
               $validationScript = <<<_END
               <script>
-              function makeAlert() {
+              function validate() {
                  alert("Did this work?"); 
               }
 
               makeAlert(); 
             </script>
 _END;
-          } else
-          {
-              $validationScript = ""; 
+          } else {
+              $validationScript = "<script> function validate() { return null; } </script>" ; 
           }
           return <<<_END
-            $validationScript; 
-            <form action=$this->action method=$this->method>
+            $validationScript
+            <form action=$this->action method=$this->method onsubmit = "return(validate())">
               Please fill out this form to subscribe to the newsletter:
               Enter Name: <input type="text" name="name">
               Enter Email: <input type="text" name="email">
