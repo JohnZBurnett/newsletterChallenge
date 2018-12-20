@@ -84,7 +84,7 @@ _END;
           }
       }
 
-      public function render_form() {
+      public function renderForm() {
           return <<<_END
             $this->jsValidationScript
             <form action=$this->action method=$this->method onsubmit="return(validate())" name="newsletterForm">
@@ -99,6 +99,6 @@ _END;
 
   $newForm = new Form("POST", "treehouseChallenge.php"); 
   $newForm->setJsFormValidation(true); 
-  echo $newForm->render_form();
+  echo $newForm->renderForm();
   $dbHelper->conn->close(); 
 ?>
