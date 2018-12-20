@@ -34,23 +34,34 @@
 
   class Form 
   {
-      public $method, $action; 
+      public $method, $action, $js_validation; 
       public function __construct($method, $action) 
       {
           $this->method = $method; 
           $this->action = $action; 
+          $this->js_validation = false; 
       }
 
       public function render_form()
       {
-          return <<<_END
-            <script>
+          if ($this->js_validation == true)
+          {
+              echo "Did this hit?"; 
+              $validationScript = <<<_END
+              <script>
               function makeAlert() {
-                  alert('Did this work?'); 
+                 alert("Did this work?"); 
               }
 
               makeAlert(); 
             </script>
+_END;
+          } else
+          {
+              $validationScript = ""; 
+          }
+          return <<<_END
+            $validationScript; 
             <form action=$this->action method=$this->method>
               Please fill out this form to subscribe to the newsletter:
               Enter Name: <input type="text" name="name">
