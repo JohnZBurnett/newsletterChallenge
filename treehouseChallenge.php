@@ -44,8 +44,15 @@
       public function render_form()
       {
           return <<<_END
+            <script>
+              function makeAlert() {
+                  alert('Did this work?'); 
+              }
+
+              makeAlert(); 
+            </script>
             <form action=$this->action method=$this->method>
-              This is a sample form.
+              Please fill out this form to subscribe to the newsletter:
               Enter Name: <input type="text" name="name">
               Enter Email: <input type="text" name="email">
               <input type="submit" value="Subscribe">
