@@ -47,16 +47,45 @@
   }
 
   class Form {
-      public $method, $action, $js_validation; 
+      public $method, $action, $jsValidation, $jsValidationScript; 
 
       public function __construct($method, $action) {
           $this->method = $method; 
           $this->action = $action; 
-          $this->js_validation = true; 
+          $this->jsValidation = true; 
+      }
+
+      public function setJsFormValidation($validationEnabled) {
+          if ($validationEnabled == true) {
+              $this->jsValidationScript = <<<_END
+              <script>
+              function validate() {
+                  if (document.forms['newsletterForm'].name.value === "") {
+                      alert("Please provide a name!");
+                      return false; 
+                  } 
+                  if (document.forms['newsletterForm'].email.value === "") {
+                      alert("Please provide an email!")
+                      return false; 
+                  }
+                  let email = document.forms['newsletterForm'].email.value; 
+                  let atpos = email.indexOf('@');
+                  let dotpos = email.lastIndexOf('.'); 
+                  if (atpos < 1 || (dotpos - atpos < 2) ) {
+                      alert("Please enter a valid email."); 
+                      return false; 
+                  }
+                  return true; 
+              }
+            </script>
+_END;
+          } else {
+             $this->validationScript = "<script> function validate() { return null; } </script>" ;
+          }
       }
 
       public function render_form() {
-          if ($this->js_validation == true) {
+          if ($this->jsValidation == true) {
               $validationScript = <<<_END
               <script>
               function validate() {
@@ -83,7 +112,7 @@ _END;
               $validationScript = "<script> function validate() { return null; } </script>" ; 
           }
           return <<<_END
-            $validationScript
+            $this->validationScript
             <form action=$this->action method=$this->method onsubmit="return(validate())" name="newsletterForm">
               Please fill out this form to subscribe to the newsletter:
               Enter Name: <input type="text" name="name">
