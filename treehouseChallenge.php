@@ -52,7 +52,7 @@
       public function __construct($method, $action) {
           $this->method = $method; 
           $this->action = $action; 
-          $this->js_validation = false; 
+          $this->js_validation = true; 
       }
 
       public function render_form() {
@@ -60,10 +60,16 @@
               $validationScript = <<<_END
               <script>
               function validate() {
-                 alert("Did this work?"); 
+                  if (document.forms['newsletterForm'].name.value === "") {
+                      alert("Please provide a name!");
+                      return false; 
+                  } 
+                  if (document.forms['newsletterForm'].email.value === "") {
+                      alert("Please provide an email!")
+                      return false; 
+                  }
+                  return true; 
               }
-
-              makeAlert(); 
             </script>
 _END;
           } else {
@@ -71,7 +77,7 @@ _END;
           }
           return <<<_END
             $validationScript
-            <form action=$this->action method=$this->method onsubmit = "return(validate())">
+            <form action=$this->action method=$this->method onsubmit="return(validate())" name="newsletterForm">
               Please fill out this form to subscribe to the newsletter:
               Enter Name: <input type="text" name="name">
               Enter Email: <input type="text" name="email">
